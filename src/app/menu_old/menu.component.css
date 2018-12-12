@@ -1,0 +1,46 @@
+.preview{
+	width:25px;
+	height:25px;
+}
+.img-transparent{
+	opacity:.4;
+}
+.img-no-transparent{
+	opacity:1;
+}
+.pointer{
+	cursor: pointer;
+}
+.img-visible{
+	display:inline-block;
+}
+
+.img-hidden{
+	display:none;
+}
+.fixed{
+	position:fixed;
+}
+.center{
+	text-align:center;
+}
+.inline-block{
+	display:inline-block;
+}
+
+
+.w-10 {
+  width: 10%;
+}
+
+.w-15 {
+  width: 15%
+}
+
+.w-55 {
+  width: 55%;
+}
+
+table {
+  table-layout:fixed;
+}
