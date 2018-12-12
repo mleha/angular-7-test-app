@@ -1,10 +1,9 @@
 <div class="container">
 	<div class="row">
-		<div class="form-group col-lg-2 col-md-2 col-xs-5">
-			<div *ngFor="let s of sections"  (click)="navi(s)"  class="btn {{ s.css.data }} btn-block" role="button" >{{ s.name }}</div>
+		<div class="form-group col-lg-2 col-md-3 col-xs-5">
+			<div *ngFor="let s of sections"  (click)="navi(s)" [ngClass]="{'btn-info':s.css.data=='btn-info','btn-warning':s.css.data=='btn-warning'}" class="btn btn-block" role="button" >{{ s.name }}</div>
 		</div>
-		{{m}}
-		<div class="form-group col-lg-10 col-md-10 col-xs-7">
+		<div class="form-group col-lg-10 col-md-9 col-xs-7">
 			<router-outlet></router-outlet>
 		</div>
 	</div>
