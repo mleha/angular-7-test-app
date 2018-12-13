@@ -24,9 +24,8 @@ export class ViewComponent implements OnInit {
   
 	private found = [];
 	
-	@Output() public selectPageEvent:EventEmitter<string> = new EventEmitter();
 	
-	searchFilter:string = '';
+	public searchFilter:string = '';
 	
 	public  page:string;
 	public  section:string;
@@ -45,27 +44,18 @@ export class ViewComponent implements OnInit {
 	public i_top='0';
 	
 	ngOnInit() {
-	//console.log(this.route.snapshot.paramMap.get('page'));
-		
-		//load current data
 		var emoji = this.storage.retrieve('emoji');
 		this.localEmojis = emoji || [];
-		console.log(emoji);
-		
 		this.route.params.subscribe((value) => {
-			//this.id = value[0]["id"]; // get param
 			this.page = value.page; // get data value
-			console.log(value);
 			var s = this.get_section(this.page);
 			if (s!=null){
 				this.section = s.name;
-				this.selectPageEvent.emit(this.page);
 				this.storage.store('page', this.page);
 				this.do_search();
 			}
 		});
 
-		console.log("menu.component");
 		this.http.get("https://api.github.com/emojis").subscribe(data => {
 			this.update_emojis(data);
 			this.store_emoji();
@@ -73,6 +63,8 @@ export class ViewComponent implements OnInit {
 		});  
 		
 	}
+	//=================================
+	//        service functions
 	store_emoji(){
 		this.storage.store('emoji', this.localEmojis);
 	}
@@ -82,8 +74,6 @@ export class ViewComponent implements OnInit {
 		}
 		return null;
 	}
-
-
   	update_emojis(emojis){
 		for(var id in emojis){
 			var found = this.filter_getById(this.localEmojis, id);
@@ -93,7 +83,6 @@ export class ViewComponent implements OnInit {
 			else
 				this.localEmojis.push({'id':id,'url':emojis[id], 'cat':'all'});
 		}
-		//$localStorage.emojis = $scope.localEmojis;
 		this.push_CSS_to_object(this.localEmojis, "img-transparent");
 	}
 	filter_getById(data,id){
@@ -108,20 +97,6 @@ export class ViewComponent implements OnInit {
 			if (item.css==undefined) item.css = {'data':data} 
 		}
 	}
-	do_search(){
-		console.log("this.searchFilter = " + this.searchFilter);
-		var found=[];
-		for(var i in this.localEmojis){
-			var em = this.localEmojis[i];
-			if (this.check_category(em) && em.id.indexOf(this.searchFilter)>=0) found.push(em);
-		}
-		this.found = found;
-		console.log(this.found);
-		//var filterd =  $filter('category')($scope.localEmojis, $scope);
-		//$scope.found = $filter('searchById')(filterd, $scope.search.id);
-		this.split_found();
-		
-	}
 	check_category(item){
 		switch (this.page){
 			case "all":
@@ -134,7 +109,6 @@ export class ViewComponent implements OnInit {
 		}
 		return false;
 	}
-	
 	split_found(){
 		var img_in_page=10;
 		this.pagecount = Math.ceil(this.found.length/img_in_page);
@@ -164,7 +138,30 @@ export class ViewComponent implements OnInit {
 		}
 		this.curpage = this.pages[0];
 		this.set_page(0);
-		console.log(this.pages);
+	}
+	redraw_emoji_list(){
+		var old_page = this.curpagen;
+		this.do_search();
+		if(old_page == this.pagecount) old_page = this.pagecount-1;
+		this.set_page(old_page);			
+	}		
+	check_visible(button){
+		if (button=="fav" && this.page=="all") return "img-visible";
+		if (button=="restore" && this.page=="del") return "img-visible";
+		if (button=="del" && this.page!="del") return "img-visible";
+		return "img-hidden";
+	}	
+	//==============================
+	//       UI event functions
+	do_search(){
+		var found=[];
+		for(var i in this.localEmojis){
+			var em = this.localEmojis[i];
+			if (this.check_category(em) && em.id.indexOf(this.searchFilter)>=0) found.push(em);
+		}
+		this.found = found;
+		this.split_found();
+		
 	}
 	set_page(page){
 		if (page < 0 || page > this.pagecount-1) return;
@@ -188,42 +185,31 @@ export class ViewComponent implements OnInit {
 		}
 		this.curpage = this.pages[page];
 	}
-	check_visible(button){
-		if (button=="fav" && this.page=="all") return "img-visible";
-		if (button=="restore" && this.page=="del") return "img-visible";
-		if (button=="del" && this.page!="del") return "img-visible";
-		return "img-hidden";
-	}
+
+	//====================================
+	//       image event listeners
 	img_move(event) {
-		//console.log(event);
-		//this.img_div_style = 'left:'+(event.clientX+3)+'px;top:'+(event.clientY+3)+'px';
 		this.i_left = (event.clientX+3)+'px';
 		this.i_top=(event.clientY+3)+'px';
-		//this.img_div_style = 'left:'+(event.clientX+3)+'px;top:'+(event.clientY+3)+'px';
-		//angular.element("#popapimg").css('left',event.clientX+3);
 	}
 	img_over(event) {
-		//console.log(img);
 		this.img_div_class='img-visible';
 		this.fullimg=event.srcElement.src;
 	}
 	img_out () {
 		this.img_div_class='img-hidden';
 	}
-	
 	make_favorive(emoji){
 		emoji.cat="fav";
 		emoji.css.data="img-no-transparent";
 		this.store_emoji();
 	}
-	
 	restore_emoji(emoji){
 		emoji.cat="all";
 		emoji.css.data="img-transparent";
 		this.redraw_emoji_list();
 		this.store_emoji();
 	}
-	
 	del_emoji(emoji){
 		if (emoji.cat=="all" || (emoji.cat=="fav" && this.page=="all")){
 			emoji.cat="del";
@@ -235,11 +221,5 @@ export class ViewComponent implements OnInit {
 		this.redraw_emoji_list();
 		this.store_emoji();
 	}
-	redraw_emoji_list(){
-		var old_page = this.curpagen;
-		this.do_search();
-		if(old_page == this.pagecount) old_page = this.pagecount-1;
-		this.set_page(old_page);			
-	}		
 
 }

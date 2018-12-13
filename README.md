@@ -2,4 +2,4 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.2.
 
-Переписываю тестовый проект на Angular v7
+Переписываю тестовое задание на Angular v7

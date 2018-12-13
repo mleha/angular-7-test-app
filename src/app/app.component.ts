@@ -23,30 +23,26 @@ export class AppComponent {
   constructor(	private http: HttpClient,
 				private router: Router, 
 				private route:ActivatedRoute,
-				private localSt:LocalStorageService) { 
-	
-  
-  
-  }
-	public m;
+				private localSt:LocalStorageService) { }
+	private page:string='';
     public sections =  [ {'id':'fav','name':'Любимые','css':{'data':''}},
 						{'id':'all','name':'Все','css':{'data':''}},
 						{'id':'del','name':'Удаленные','css':{'data':''}}];
   
 	ngOnInit(){
-
 		this.push_CSS_to_object(this.sections, "btn-info");
 		this.localSt.observe('page')
 				.subscribe((value) => {
-					this.page=value;
-					this.change_category();
+					setTimeout(() => { // settimeout sync code (https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4)
+						this.page=value;
+						this.change_category();
+					});
 				});
 		
 	}
-  
-	private page:string='';
-		navi(s){
-		//[routerLink]="['/page',s.id]"
+	
+	
+	navi(s){
 		this.page=s.id;
 		this.change_category();
 		this.router.navigate(['/page/',s.id]);
@@ -55,16 +51,11 @@ export class AppComponent {
 	push_CSS_to_object(arr,data){
 		for(var i in arr){
 			var item = arr[i];
-			//if (item.css==undefined) 
-				item.css = {'data':data} 
+			item.css = {'data':data} 
 		}
 	}
 	
 	change_category(){
-		console.log("change_category");
-		console.log(this.sections);
-
-		
 		for(var i in this.sections){
 			if(this.sections[i].id==this.page){
 				this.sections[i].css.data='btn-warning';
