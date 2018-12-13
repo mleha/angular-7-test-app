@@ -16,14 +16,8 @@ export class ViewComponent implements OnInit {
 			  private route:ActivatedRoute,
 			  private storage:LocalStorageService) { }
 
-	public localEmojis = [];// $localStorage.emojis || [];
-    public sections =  [ {'id':'fav','name':'Любимые'},
-						{'id':'all','name':'Все'},
-						{'id':'del','name':'Удаленные'}];
-  
+	public localEmojis = [];
 	private found = [];
-	
-	
 	public searchFilter:string = '';
 	
 	public  page:string;
@@ -35,7 +29,6 @@ export class ViewComponent implements OnInit {
 	public pages = [];
 	public pagesn = [];
   
-	public img_div_style:string='';
 	public img_div_class:string='';
 	public fullimg:string=''; 
 
@@ -47,7 +40,7 @@ export class ViewComponent implements OnInit {
 		this.localEmojis = emoji || [];
 		this.route.params.subscribe((value) => {
 			this.page = value.page; // get data value
-			if (!(['all','fav','del'].includes(this.page))){
+			if (['all','fav','del'].indexOf(this.page)==-1){
 				this.storage.store('do_navigate', 'all'); // navigate to all when page wrong
 			}else{
 				this.storage.store('page', this.page);
@@ -93,10 +86,8 @@ export class ViewComponent implements OnInit {
 		return undefined;
 	}
 	push_CSS_to_object(arr,data){
-		for(var i in arr){
-			var item = arr[i];
-			if (item.css==undefined) item.css = {'data':data} 
-		}
+		for(var i in arr)
+			if (arr[i].css==undefined) arr[i].css = {'data':data} 
 	}
 	check_category(item){
 		switch (this.page){

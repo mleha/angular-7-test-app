@@ -22,10 +22,9 @@ export class AppComponent {
 				private router: Router, 
 				private storage:LocalStorageService) { }
 	private page:string='';
-    public sections =  [ {'id':'fav','name':'Любимые','css':{'data':''}},
-						{'id':'all','name':'Все','css':{'data':''}},
-						{'id':'del','name':'Удаленные','css':{'data':''}}];
-  
+    public sections =  [ {'id':'fav','name':'Любимые'},
+						{'id':'all','name':'Все'},
+						{'id':'del','name':'Удаленные'}];
 	ngOnInit(){
 		this.push_CSS_to_object(this.sections, "btn-info");
 		this.storage.observe('do_navigate')
@@ -48,7 +47,6 @@ export class AppComponent {
 						
 					});
 				});
-				
 	}
 
 	get_section(id){
@@ -66,20 +64,22 @@ export class AppComponent {
 	}
 	push_CSS_to_object(arr,data){
 		for(var i in arr){
-			var item = arr[i];
-			item.css = {'data':data} 
+			if (arr[i].css==undefined) arr[i].css = {'data':data} 
 		}
 	}
 	
 	change_category(){
-		for(var i in this.sections){
-			if(this.sections[i].id==this.page){
-				this.sections[i].css.data='btn-warning';
-			}else{
-				this.sections[i].css.data='btn-info';
-			}
-		}
-		
+		for(var i in this.sections)
+			this.change_category2(this.sections[i]);
 	}
- 
+
+	change_category2(cat){
+		// can't combine with change_category
+		// compiler test this.sections contains css field
+		if(cat.id==this.page)
+			cat.css.data='btn-warning';
+		else
+			cat.css.data='btn-info';
+	}
+	
 }
