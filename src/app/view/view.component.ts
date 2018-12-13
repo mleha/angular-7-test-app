@@ -1,7 +1,7 @@
 import { Component, OnInit , Output, EventEmitter} from '@angular/core';
-import { ActivatedRoute,Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
+import {LocalStorageService} from 'ngx-webstorage';
 
 
 @Component({
@@ -14,7 +14,6 @@ export class ViewComponent implements OnInit {
 
   constructor(private http: HttpClient,
 			  private route:ActivatedRoute,
-			  private router: Router,
 			  private storage:LocalStorageService) { }
 
 	public localEmojis = [];// $localStorage.emojis || [];
@@ -48,9 +47,9 @@ export class ViewComponent implements OnInit {
 		this.localEmojis = emoji || [];
 		this.route.params.subscribe((value) => {
 			this.page = value.page; // get data value
-			var s = this.get_section(this.page);
-			if (s!=null){
-				this.section = s.name;
+			if (!(['all','fav','del'].includes(this.page))){
+				this.storage.store('do_navigate', 'all'); // navigate to all when page wrong
+			}else{
 				this.storage.store('page', this.page);
 				this.do_search();
 			}
@@ -62,18 +61,20 @@ export class ViewComponent implements OnInit {
 			this.do_search();
 		});  
 		
+		this.storage.observe('page_title')
+				.subscribe((value) => {
+					setTimeout(() => { 
+						this.section=value;
+					});
+				});		
+		
 	}
 	//=================================
 	//        service functions
 	store_emoji(){
 		this.storage.store('emoji', this.localEmojis);
 	}
-	get_section(id){
-		for(var i in this.sections){
-			if(this.sections[i].id==id) return this.sections[i];
-		}
-		return null;
-	}
+
   	update_emojis(emojis){
 		for(var id in emojis){
 			var found = this.filter_getById(this.localEmojis, id);

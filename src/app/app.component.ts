@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute,Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Observable, from} from 'rxjs';
 import { RouterOutlet } from '@angular/router';
-import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
-//import { toArray } from 'rxjs/add/operator';
-//import { from } from 'rxjs';
+import {LocalStorageService} from 'ngx-webstorage';
   
   class mt{
 	id: string;
@@ -20,10 +18,9 @@ import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
 })
 export class AppComponent {
 	
-  constructor(	private http: HttpClient,
+  constructor(
 				private router: Router, 
-				private route:ActivatedRoute,
-				private localSt:LocalStorageService) { }
+				private storage:LocalStorageService) { }
 	private page:string='';
     public sections =  [ {'id':'fav','name':'Любимые','css':{'data':''}},
 						{'id':'all','name':'Все','css':{'data':''}},
@@ -31,21 +28,40 @@ export class AppComponent {
   
 	ngOnInit(){
 		this.push_CSS_to_object(this.sections, "btn-info");
-		this.localSt.observe('page')
+		this.storage.observe('do_navigate')
 				.subscribe((value) => {
-					setTimeout(() => { // settimeout sync code (https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4)
-						this.page=value;
-						this.change_category();
+					setTimeout(() => { 
+						this.navi(value);
 					});
 				});
+			
 		
+		this.storage.observe('page')
+				.subscribe((value) => {
+					setTimeout(() => { 
+					// settimeout sync code (https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4)
+						this.page=value;
+						this.change_category();
+						
+						var pg = this.get_section(this.page);
+						if (pg!=null) this.storage.store('page_title', pg.name);
+						
+					});
+				});
+				
 	}
-	
+
+	get_section(id){
+		for(var i in this.sections){
+			if(this.sections[i].id==id) return this.sections[i];
+		}
+		return null;
+	}	
 	
 	navi(s){
-		this.page=s.id;
+		this.page=s;
 		this.change_category();
-		this.router.navigate(['/page/',s.id]);
+		this.router.navigate(['/page/',s]);
 
 	}
 	push_CSS_to_object(arr,data){
